@@ -1,4 +1,4 @@
-const API_BASE = "http://10.118.209.176:5000";
+const API_BASE = "https://shrimaruti-backend.onrender.com";
 let cart = [];
 let currentProduct = null;
 let allProducts = [];
