@@ -1,4 +1,4 @@
-const API_BASE = "http://10.118.209.176:5000";
+const API_BASE = "https://shrimaruti-backend.onrender.com";
 let cart = [];
 let currentProduct = null;
 let allProducts = [];
@@ -333,117 +333,85 @@ function updateFloatingCartUI() {
     fBtn.innerText = `🛒 Bag (${cart.length})`;
 }
 
-// =======================================================
-// 🔥 BRAND NEW: INTENT FLOW GPAY & FULL PAGE CHECKOUT
-// =======================================================
-let selectedPaymentType = "ONLINE";
-
-// 1. Trigger checkout page when Bag icon is clicked
-const viewCartBtnElement = document.getElementById('viewCartBtn');
-if (viewCartBtnElement) {
-    viewCartBtnElement.replaceWith(viewCartBtnElement.cloneNode(true)); // Purane duplicate listeners ko remove karne ke liye hack
-    document.getElementById('viewCartBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        if (typeof enforceLogin === 'function') {
-            enforceLogin(() => { launchPremiumCheckout(); });
-        } else {
-            launchPremiumCheckout();
-        }
+// View Cart Details
+document.getElementById('viewCartBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    enforceLogin(() => {
+        const list = document.getElementById('cartItemsList');
+        list.innerHTML = "";
+        let total = 0;
+        cart.forEach((item, i) => {
+            total += item.price;
+            list.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; font-size:16px; border-bottom:1px solid #eee; padding-bottom:10px; color:black;">
+                    <span style="display:flex; align-items:center; gap:10px;"><img src="${item.image}" style="width:40px; height:40px; border-radius:4px; object-fit:cover;">${item.title}</span>
+                    <span>₹${item.price} <button onclick="cart.splice(${i},1); document.getElementById('viewCartBtn').click(); document.getElementById('cartCount').innerText=cart.length; if(cart.length===0 && document.getElementById('floatingCartBtn')) document.getElementById('floatingCartBtn').remove();" style="border:none; background:none; color:red; font-size:16px; cursor:pointer; margin-left:10px; font-weight:bold;">X</button></span>
+                </div>`;
+        });
+        document.getElementById('cartTotal').innerText = `₹${total}`;
+        cartModal.style.display = 'flex';
     });
-}
+});
 
-function launchPremiumCheckout() {
-    if (!cart || cart.length === 0) return alert("Your bag is empty!");
-    
-    // Poora white layout active karo
-    document.getElementById('premiumCheckoutPage').style.display = 'block';
-    document.getElementById('checkoutBagCount').innerText = cart.length;
-    
-    const listContainer = document.getElementById('checkoutProductsList');
-    listContainer.innerHTML = "";
-    let totalBill = 0;
-    
-    cart.forEach((item) => {
-        totalBill += item.price;
-        listContainer.innerHTML += `
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; font-size:13px; color:#282c3f;">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <img src="${item.image}" style="width:35px; height:35px; object-fit:cover; border-radius:4px;"> 
-                    <b>${item.title}</b>
-                </span>
-                <span style="font-weight:600;">₹${item.price}</span>
-            </div>`;
-    });
-    
-    document.getElementById('billTotalMRP').innerText = `₹${totalBill}`;
-    document.getElementById('billFinalAmount').innerText = `₹${totalBill}`;
-}
+document.getElementById('closeCartBtn').addEventListener('click', () => cartModal.style.display = 'none');
 
-window.closePremiumCheckout = function() {
-    document.getElementById('premiumCheckoutPage').style.display = 'none';
+// ==========================================
+// 5. CHECKOUT FLOW
+// ==========================================
+document.getElementById('proceedToAddressBtn').addEventListener('click', () => {
+    if (cart.length === 0) return alert("Bag is empty!");
+    document.getElementById('checkoutAmountDisplay').innerText = document.getElementById('cartTotal').innerText;
+    cartModal.style.display = 'none';
+    addressModal.style.display = 'flex';
+});
+
+window.togglePaymentView = function() {
+    const val = document.getElementById('paymentMethod').value;
+    document.getElementById('qrSection').style.display = (val === 'UPI') ? 'block' : 'none';
 };
 
-// 2. Radio UI Switcher logic
-window.selectPaymentMode = function(mode) {
-    selectedPaymentType = mode;
-    const onlineBox = document.getElementById('optOnline');
-    const codBox = document.getElementById('optCOD');
-    
-    if (mode === 'ONLINE') {
-        onlineBox.style.border = "2px solid #ff3f6c"; onlineBox.style.background = "#fff5f7";
-        codBox.style.border = "1px solid #d4d5d9"; codBox.style.background = "#fff";
-    } else {
-        codBox.style.border = "2px solid #ff3f6c"; codBox.style.background = "#fff5f7";
-        onlineBox.style.border = "1px solid #d4d5d9"; onlineBox.style.background = "#fff";
-    }
-};
+document.getElementById('payNowBtn').addEventListener('click', async () => {
+    const totalAmt = parseInt(document.getElementById('checkoutAmountDisplay').innerText.replace('₹', ''));
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
 
-// 3. Asli Deep-Link Trigger: Phone App Hooks
-window.executePremiumOrder = async function() {
-    const name = document.getElementById('newCustName').value.trim();
-    const phone = document.getElementById('newCustPhone').value.trim();
-    const address = document.getElementById('newCustAddress').value.trim();
-    const amount = parseInt(document.getElementById('billFinalAmount').innerText.replace('₹', ''));
+    if(!name || !phone || !address) return alert("Please fill out all address details!");
 
-    if (!name || !phone || !address) return alert("Please fill your delivery details completely!");
-
-    if (selectedPaymentType === "ONLINE") {
-        alert("🔗 Redirecting directly to Google Pay / PhonePe...");
-        
-        // Mobile custom app router link (Intent URL)
-        const upiIntentURL = `upi://pay?pa=bohraraj460@okaxis&pn=ShriMarutiFashion&am=${amount}&cu=INR&tn=SMF-Live-Order`;
-        window.location.href = upiIntentURL;
-        
-        setTimeout(async () => {
-            await pushCheckoutOrder({ name, phone, address }, amount, "ONLINE-UPI");
-        }, 3000);
-    } else {
-        await pushCheckoutOrder({ name, phone, address }, amount, "COD");
-    }
-};
-
-async function pushCheckoutOrder(userMeta, finalBill, method) {
     try {
+        document.getElementById('payNowBtn').innerText = "Processing...";
         const res = await fetch(`${API_BASE}/api/orders`, {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 items: cart, 
-                totalAmount: finalBill, 
-                address: userMeta,
-                utr: method
+                totalAmount: totalAmt, 
+                address: { name, phone, address },
+                utr: document.getElementById('utrNumber') ? document.getElementById('utrNumber').value.trim() : ""
             })
         });
-        if(res.ok) {
-            alert(`🎉 Superb! Order placed via ${method}. Check your Admin Console!`);
-            cart = [];
-            if(document.getElementById('cartCount')) document.getElementById('cartCount').innerText = '0';
-            closePremiumCheckout();
-        } else {
-            alert("❌ Server issue during order placement.");
-        }
-    } catch (e) { console.error(e); }
-}
+        const data = await res.json();
+        
+        cart = []; 
+        document.getElementById('cartCount').innerText = '0';
+        if (document.getElementById('floatingCartBtn')) document.getElementById('floatingCartBtn').remove();
+        
+        addressModal.style.display = 'none';
+        document.getElementById('generatedOrderId').innerText = data.orderId || data._id;
+        successModal.style.display = 'flex';
+        document.getElementById('payNowBtn').innerText = "Place Order";
+    } catch (e) { 
+        alert("Server Order Error"); 
+        document.getElementById('payNowBtn').innerText = "Place Order";
+    }
+});
+
+window.downloadBill = function() {
+    let billWindow = window.open('', '_blank');
+    billWindow.document.write(`<h2>SMF Official Invoice</h2><p>Order ID: ${document.getElementById('generatedOrderId').innerText}</p><p>Total Paid: ${document.getElementById('checkoutAmountDisplay').innerText}</p>`);
+    billWindow.document.close();
+    setTimeout(() => { billWindow.print(); }, 500);
+};
 
 // ==========================================
 // 6. SORT & FILTER
