@@ -227,11 +227,11 @@
         </p>
         <p style="margin: 8px 0;">
             <span style="color: #2196f3; margin-right: 8px;">👤</span> 
-            <strong>Owner:</strong> Narendra Sharma / Anil Bohra
+            <strong>Owner:</strong>Anil Bohra
         </p>
         <p style="margin: 8px 0;">
             <span style="color: #00c853; margin-right: 8px;">📞</span> 
-            <strong>Contact:</strong> +91 9978829203 / 9265100810
+            <strong>Contact:</strong> 9265100810
         </p>
     </div>
 
@@ -240,5 +240,86 @@
     <p style="color: #888; font-size: 13px;">© 2026 Shri Maruti Fashion | Elite Retail Experience</p>
 
 </footer>
+<!-- ==========================================
+     🛍️ MYNTRA-STYLE FULL PAGE CHECKOUT SITE
+     ========================================== -->
+<div id="premiumCheckoutPage" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#f4f4f6; z-index:99999; overflow-y:auto; font-family:sans-serif; color:#282c3f;">
+    
+    <!-- Premium Header -->
+    <div style="background:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaec; position:sticky; top:0; z-index:10;">
+        <span style="font-weight:bold; font-size:18px; letter-spacing:1px; color:#ff3f6c;">🛒 SECURE CHECKOUT</span>
+        <button onclick="closePremiumCheckout()" style="background:none; border:none; font-size:22px; font-weight:bold; cursor:pointer; color:#282c3f;">✕</button>
+    </div>
+
+    <!-- Main Responsive Container -->
+    <div style="max-width:1100px; margin:20px auto; padding:0 15px; display:flex; flex-wrap:wrap; gap:20px;">
+        
+        <!-- LEFT COLUMN: Address & Payments -->
+        <div style="flex:1; min-width:300px; display:flex; flex-direction:column; gap:20px;">
+            
+            <!-- Address Box -->
+            <div style="background:#fff; padding:25px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <h3 style="font-size:16px; margin-bottom:15px; text-transform:uppercase; color:#282c3f;">1. Delivery Address</h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <input type="text" id="newCustName" placeholder="Contact Name" style="width:100%; padding:12px; border:1px solid #d4d5d9; border-radius:4px; font-size:14px;">
+                    <input type="text" id="newCustPhone" placeholder="10-Digit Mobile Number" style="width:100%; padding:12px; border:1px solid #d4d5d9; border-radius:4px; font-size:14px;">
+                    <textarea id="newCustAddress" placeholder="Full Address (House No, Building, Street, Area)" style="width:100%; padding:12px; border:1px solid #d4d5d9; border-radius:4px; font-size:14px; height:80px; resize:none;"></textarea>
+                </div>
+            </div>
+
+            <!-- Payment Modes -->
+            <div style="background:#fff; padding:25px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <h3 style="font-size:16px; margin-bottom:20px; text-transform:uppercase; color:#282c3f;">2. Choose Payment Mode</h3>
+                
+                <!-- GPay / UPI -->
+                <div onclick="selectPaymentMode('ONLINE')" id="optOnline" style="border:2px solid #ff3f6c; padding:15px; border-radius:6px; margin-bottom:15px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; background:#fff5f7;">
+                    <div>
+                        <strong style="font-size:15px; color:#ff3f6c;">⚡ Instant Online Payment (UPI)</strong>
+                        <p style="font-size:12px; color:#696b79; margin-top:3px;">Pay instantly via Google Pay / PhonePe app directly</p>
+                    </div>
+                    <div style="width:18px; height:18px; border-radius:50%; border:5px solid #ff3f6c;"></div>
+                </div>
+
+                <!-- COD -->
+                <div onclick="selectPaymentMode('COD')" id="optCOD" style="border:1px solid #d4d5d9; padding:15px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <strong style="font-size:15px; color:#282c3f;">📦 Cash on Delivery (COD)</strong>
+                        <p style="font-size:12px; color:#696b79; margin-top:3px;">Pay with cash at the time of delivery</p>
+                    </div>
+                    <div id="codRadioDot" style="width:18px; height:18px; border-radius:50%; border:2px solid #d4d5d9;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Bill Summary -->
+        <div style="width:380px; min-width:300px; display:flex; flex-direction:column; gap:20px;">
+            <div style="background:#fff; padding:25px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <h3 style="font-size:14px; color:#696b79; margin-bottom:15px; text-transform:uppercase;">Order Summary (<span id="checkoutBagCount">0</span> Items)</h3>
+                
+                <div id="checkoutProductsList" style="max-height:180px; overflow-y:auto; margin-bottom:20px; padding-right:5px;"></div>
+
+                <hr style="border:none; border-top:1px dashed #d4d5d9; margin-bottom:15px;">
+                
+                <div style="display:flex; justify-content:space-between; font-size:14px; color:#282c3f; margin-bottom:10px;">
+                    <span>Total MRP</span> <span id="billTotalMRP">₹0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:14px; color:#03a685; margin-bottom:15px;">
+                    <span>Delivery Charges</span> <span>FREE</span>
+                </div>
+                
+                <hr style="border:none; border-top:1px solid #eaeaec; margin-bottom:15px;">
+                
+                <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; color:#282c3f; margin-bottom:20px;">
+                    <span>Total Amount</span> <span id="billFinalAmount">₹0</span>
+                </div>
+
+                <button id="finalPlaceOrderBtn" onclick="executePremiumOrder()" style="width:100%; background:#ff3f6c; color:white; border:none; padding:15px; border-radius:4px; font-size:16px; font-weight:bold; cursor:pointer; text-transform:uppercase; letter-spacing:1px; box-shadow:0 4px 12px rgba(255, 63, 108, 0.2);">
+                    Place Order
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
