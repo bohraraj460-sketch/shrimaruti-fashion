@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMF - Shri Maruti Fashion</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Myntra Style Login Modal Styling */
+        .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: flex-end; }
+        .auth-box { background: white; width: 100%; max-width: 450px; border-radius: 16px 16px 0 0; padding: 30px; animation: slideUp 0.3s ease-out; color: black; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .phone-input-group { display: flex; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; margin: 20px 0; }
+        .phone-input-group span { background: #f5f5f5; padding: 15px; font-weight: bold; border-right: 1px solid #ccc; font-size: 16px; }
+        .phone-input-group input { flex: 1; border: none; padding: 15px; outline: none; font-size: 16px; }
+        .continue-btn { width: 100%; padding: 15px; background: #bdbdbd; color: white; border: none; font-weight: bold; font-size: 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .continue-btn.active { background: #ff3f6c; }
+        
+        /* Modals Basic Inline Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; color: black; max-height: 90vh; overflow-y: auto;}
+   
+   /* 1. LOGIN MODAL - BICH MEIN LANE KE LIYE */
+        .auth-overlay { align-items: center !important; }
+        .auth-box { border-radius: 16px !important; margin: 20px; }
+
+        /* 2. BAG/CART MODAL - BADA AUR AUTO-ADJUST KARNE KE LIYE */
+        #cartModal .modal-box { max-width: 600px !important; width: 95% !important; }
+        #cartItemsList { max-height: 60vh !important; overflow-y: auto; }
+
+        /* 3. CHECKOUT FORM - FULL OPEN HONE KE LIYE */
+        #addressModal .modal-box { max-width: 600px !important; width: 95% !important; max-height: 90vh; overflow-y: auto; }
+   </style>
+</head>
+<body>
+    <header>
+        <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>SMF MENU</span>
+            <span class="close-btn" id="closeBtn" style="font-size:26px; cursor:pointer; color:#ff3f6c;">&times;</span>
+        </div>
+        <ul class="sidebar-menu" style="list-style:none; padding:15px; font-size:16px; line-height:2.5;">
+            <li class="tab" data-category="Men" style="cursor:pointer; border-bottom:1px solid #eee;">Men's Fashion</li>
+            <li class="tab" data-category="Women" style="cursor:pointer; border-bottom:1px solid #eee;">Women's Fashion</li>
+            <li class="tab" data-category="Cosmetics" style="cursor:pointer; border-bottom:1px solid #eee;">Beauty & Cosmetics</li>
+            <li class="tab" data-category="Hosiery" style="cursor:pointer; border-bottom:1px solid #eee;">Hosiery</li>
+            <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
+            <li style="cursor:pointer; color:#ff3f6c; font-weight:bold;">Track Orders</li>
+            <li style="cursor:pointer;">Help & FAQs</li>
+        </ul>
+    </div>
+        <div class="header-left">
+            <div class="hamburger" id="menuToggle" style="font-weight:bold; font-size: 30px;">☰</div>
+            <div class="logo">
+                <img src="logo2.png" alt="SMF Logo" style="height: 55px; width: auto; border-radius: 50%; display: block;">
+            </div>
+        </div>
+        <div class="search-bar">
+            <span style="font-size:20px;">🔍</span><input type="text" placeholder="Search for products, brands and more..." style="font-size: 16px;">
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" id="profileBtn" style="font-size:16px;">👤<span>Profile</span></button>
+            <button class="icon-btn" id="viewCartBtn" style="font-size:16px;">🛒<span>Bag (<span id="cartCount">0</span>)</span></button>
+        </div>
+    </header>
+
+    <div class="category-tabs" style="font-size:16px;">
+        <div class="tab active" data-category="All">All</div>
+        <div class="tab" data-category="Cosmetics">Cosmetics</div>
+        <div class="tab" data-category="Hosiery">Hosiery</div>
+        <div class="tab" data-category="Men">Men</div>
+    </div>
+
+    <main>
+        <section class="hero-banner" style="height: 300px;"><h1>Biggest Fashion Sale</h1></section>
+        
+        <h2 class="section-title" style="font-size:22px;">🔥 Trending Products</h2>
+        <div class="products-grid" id="liveProductsGrid"></div>
+
+        <h2 class="section-title" style="font-size:22px; margin-top: 40px;">✨ HOSIERY </h2>
+        <div class="products-grid" id="newArrivalsGrid">
+            </div>
+        
+        <div style="height: 100px;"></div> </main>
+
+    <div class="bottom-action-bar">
+        <button class="bottom-btn" style="font-size:16px;">⇅ SORT</button>
+        <button class="bottom-btn" style="font-size:16px;">⧩ FILTER</button>
+    </div>
+
+    <div class="auth-overlay" id="authModal">
+        <div class="auth-box">
+            <h2 style="margin-bottom: 10px;">Login <span style="font-weight: normal; font-size:18px;">or</span> Signup</h2>
+            <div class="phone-input-group">
+                <span>+91</span>
+                <input type="number" id="phoneInput" placeholder="Mobile Number*">
+            </div>
+            <div style="margin: 15px 0; font-size: 14px; color: gray;">
+                <label><input type="checkbox" id="termsCheck"> By continuing, I agree to the <span style="color:#ff3f6c; font-weight:bold;">Terms of Use</span> & <span style="color:#ff3f6c; font-weight:bold;">Privacy Policy</span></label>
+            </div>
+            <button class="continue-btn" id="authContinueBtn">CONTINUE</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="productDetailModal">
+        <div class="modal-box">
+            <span id="closeDetailBtn" style="float:right; font-size:24px; cursor:pointer;">&times;</span>
+            <img id="detailImg" src="" style="width:100%; height:300px; object-fit:cover; border-radius:8px;">
+            <h2 id="detailTitle" style="margin-top:15px; font-size:24px;">Product Name</h2>
+            <h3 id="detailPrice" style="color:var(--primary-color); font-size:22px; margin:10px 0;">₹0</h3>
+            <p id="detailDescription" style="font-size:16px; color:#555; line-height:1.5;">Description goes here...</p>
+            
+            <button class="btn-primary" id="addToCartBtn" style="font-size:18px; padding:15px; margin-top:20px;">Add to Bag</button>
+
+            <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+            <h3>Customer Reviews</h3>
+            <div id="realReviewsList" style="margin-top: 15px; max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                </div>
+            <div style="margin-top: 15px; display:flex; gap:10px;">
+                <input type="text" id="newReviewInput" placeholder="Write a review..." style="flex:1; padding:10px; border:1px solid #ccc; border-radius:4px;">
+                <button id="submitReviewBtn" style="background:#ff3f6c; color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">Post</button>
+            </div> <hr style="margin: 35px 0; border: 0; border-top: 1px solid #eee;">
+            <h3 style="font-size: 22px; margin-bottom: 20px;">You Might Also Like 🔥</h3>
+            <div class="products-grid" id="similarProductsGrid" style="margin-bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                </div>
+          
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-box">
+            <h3 style="font-size:20px;">Your Bag</h3>
+            <div id="cartItemsList" style="max-height: 300px; overflow-y: auto; margin:15px 0;"></div>
+            <h4 style="text-align:right; font-size:20px;">Total: <span id="cartTotal">₹0</span></h4>
+            <button class="btn-primary" id="proceedToAddressBtn" style="font-size:18px;">Checkout</button>
+            <button class="btn-primary" id="closeCartBtn" style="background:#888; margin-top:10px;">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addressModal">
+        <div class="modal-box">
+            <h3>Checkout Details</h3>
+            <input type="text" id="custName" class="form-input" placeholder="Full Name" style="padding:12px; font-size:16px;" required>
+            <input type="text" id="custPhone" class="form-input" placeholder="Phone Number" style="padding:12px; font-size:16px;" required>
+            <textarea id="custAddress" class="form-input" placeholder="Full Delivery Address" style="padding:12px; font-size:16px;" required></textarea>
+            
+            <select id="paymentMethod" class="form-input" onchange="togglePaymentView()" style="padding:12px; font-size:16px; font-weight: bold; margin-top:10px;">
+                <option value="COD">Cash on Delivery (COD)</option>
+                <option value="UPI">UPI / QR Code Pay</option>
+            </select>
+
+            <div id="qrSection" style="display: none; text-align: center; margin-top: 15px; padding: 15px; background:#f5f5f6;">
+                <p style="font-weight:bold; color:#ff3f6c;">Amount: <span id="checkoutAmountDisplay">₹0</span></p>
+                <img src="qr.jpg" alt="QR Code" style="width: 150px; height: 150px; margin: 10px auto;">
+                <input type="text" id="utrNumber" class="form-input" placeholder="Enter 12-digit UTR Number" style="padding:12px;">
+            </div>
+
+            <button class="btn-primary" id="payNowBtn" style="background: #00c853; font-size:18px; margin-top:20px;">Place Order</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box" style="text-align:center;">
+            <h2 style="color:#00c853;">Payment Successful!</h2>
+            <p>Your Order ID: <strong id="generatedOrderId"></strong></p>
+            <button class="btn-primary" onclick="downloadBill()">Download Bill</button>
+            <button class="btn-primary" onclick="document.getElementById('successModal').style.display='none'" style="background:#888; margin-top:10px;">Close</button>
+        
+        </div>
+    </div>
+<div class="modal-overlay" id="sortModal">
+        <div class="modal-box" style="max-width: 350px; text-align: center;">
+            <h3 style="margin-bottom:20px;">Sort Products</h3>
+            <button class="btn-primary" onclick="applySort('Low')" style="margin-bottom:15px; background:#f5f5f5; color:black; border:1px solid #ccc;">Price: Low to High</button>
+            <button class="btn-primary" onclick="applySort('High')" style="margin-bottom:15px; background:#f5f5f5; color:black; border:1px solid #ccc;">Price: High to Low</button>
+            <button class="btn-primary" onclick="document.getElementById('sortModal').style.display='none'" style="background:#888;">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="filterModal">
+        <div class="modal-box" style="max-width: 350px; text-align: center;">
+            <h3 style="margin-bottom:20px;">Filter by Budget</h3>
+            <input type="number" id="budgetInput" class="form-input" placeholder="Enter max price (e.g. 500)">
+            <button class="btn-primary" onclick="applyFilter()" style="margin-bottom:10px;">Apply Filter</button>
+            <button class="btn-primary" onclick="document.getElementById('filterModal').style.display='none'" style="background:#888;">Cancel</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="trackOrderModal">
+        <div class="modal-box" style="max-width: 450px; text-align: left; padding: 25px;">
+            <h3 style="margin-bottom: 20px; border-bottom: 2px solid #ff3f6c; padding-bottom: 10px;">Track or Cancel Order</h3>
+            
+            <div id="findOrderSection">
+                <label style="font-weight: bold; margin-bottom: 8px; display: block;">Enter Your Order ID:</label>
+                <input type="text" id="trackOrderIdInput" class="form-input" placeholder="e.g., SMF-123456" style="width: 100%; margin-bottom: 15px;">
+                <button class="btn-primary" onclick="findMyOrder()" style="width: 100%;">Find Order</button>
+            </div>
+
+            <div id="orderDetailsSection" style="display: none; margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                <p><strong>Status:</strong> <span id="displayOrderStatus" style="color: #ff3f6c; font-weight: bold;">Pending</span></p>
+                <p><strong>Total Amount:</strong> ₹<span id="displayOrderTotal"></span></p>
+                
+                <hr style="margin: 15px 0; border-top: 1px solid #ddd;">
+                
+                <h4 style="margin-bottom: 10px; color: #333;">Request Cancellation</h4>
+                <select id="cancelReason" class="form-input" style="width: 100%; margin-bottom: 15px;">
+                    <option value="">-- Select a reason --</option>
+                    <option value="Ordered by mistake">Ordered by mistake</option>
+                    <option value="Changed my mind">Changed my mind</option>
+                    <option value="Delivery is taking too long">Delivery is taking too long</option>
+                    <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+                </select>
+                <button class="btn-primary" onclick="submitCancellation()" style="background: #e53935; width: 100%;">Cancel My Order</button>
+            </div>
+
+            <button class="btn-primary" onclick="closeTrackModal()" style="background: #888; width: 100%; margin-top: 15px;">Close</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <footer style="background-color: #1c1c24; padding: 40px 20px; text-align: center; border-top: 2px solid #2a2a35; margin-top: 50px;">
+    
+    <h3 style="color: #ff3f6c; font-size: 22px; margin-bottom: 20px; font-weight: 600; letter-spacing: 1px;">Shop Information</h3>
+    
+    <div style="color: #d1d1d1; font-size: 15px; line-height: 1.8; max-width: 600px; margin: 0 auto;">
+        <p style="margin: 8px 0;">
+            <span style="color: #ff3f6c; margin-right: 8px;">📍</span> 
+            <strong>Address:</strong> 006/Saman Complex OPP, Nalanda Complex Near Mansi Tower Vastrapur Satellite, Ahmedabad-13
+        </p>
+        <p style="margin: 8px 0;">
+            <span style="color: #2196f3; margin-right: 8px;">👤</span> 
+            <strong>Owner:</strong> Narendra Sharma / Anil Bohra
+        </p>
+        <p style="margin: 8px 0;">
+            <span style="color: #00c853; margin-right: 8px;">📞</span> 
+            <strong>Contact:</strong> +91 9978829203 / 9265100810
+        </p>
+    </div>
+
+    <hr style="border: 0; height: 1px; background: #333; margin: 30px auto; max-width: 80%;">
+    
+    <p style="color: #888; font-size: 13px;">© 2026 Shri Maruti Fashion | Elite Retail Experience</p>
+
+</footer>
+</body>
+</html>
