@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SMF Admin | Command Center</title>
     <link rel="stylesheet" href="admin.css">
 </head>
@@ -16,13 +16,10 @@
             </div>
           <div class="sidebar-navigation">
                 <button class="menu-node active">📊 Dashboard</button>
-                <a href="http://127.0.0.1:5500/index.html" target="_blank" style="text-decoration:none; display: block; margin-top: 10px;">
-                    <button class="menu-node" style="color:var(--text-gold); width:100%;">👁️ Live Store</button>
-                </a>
-                
-                <button onclick="window.open('http://127.0.0.1:5500/index.html?mode=edit', '_blank')" 
-                        style="width: 100%; margin-top: 30px; background: linear-gradient(45deg, #ff3f6c, #ff9800); color: white; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 63, 108, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    🎨 Customize Site
+                 <button class="menu-node" style="color:var(--text-gold); width:100%; margin-top: 10px;" onclick="window.open('index.html', '_blank')">👁️ Live Store</button>
+                <button onclick="window.open('index.html?mode=edit', '_blank')" style="width: 100%; margin-top: 30px; background: linear-gradient(45deg, #ff3f6c, #ff9800); color: white; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 63, 108, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px;">
+    🎨 Customize Site
+</button>
                 </button>
             </div>
         </div>

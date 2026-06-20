@@ -40,3 +40,96 @@ body { background-color: var(--bg-deep) !important; color: #ffffff !important; m
 .master-data-table th { background: #161622; padding: 16px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); }
 .master-data-table td { padding: 16px; border-bottom: 1px solid var(--border-subtle); color: #e1e1e6; }
 .btn-action-delete { background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2); padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+/* ========================================================
+   📱 PHONE FIRST RESPONSIVE FIX (DESKTOP MODE CHUTTI CODE)
+   ======================================================== */
+@media (max-width: 900px) {
+    /* 1. App Container ko row se column mein badlo */
+    .app-layout {
+        flex-direction: column !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* 2. Sidebar ko pure phone ki width par fit karo */
+    .sidebar-premium {
+        width: 100% !important;
+        height: auto !important;
+        padding: 20px 15px !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+    }
+    
+    .sidebar-header-box {
+        margin-bottom: 20px !important;
+        padding-bottom: 10px !important;
+    }
+
+    /* 3. Main content ki padding adjust karo taaki chipke na */
+    .main-viewport {
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+    
+    .top-nav-bar {
+        padding: 15px 20px !important;
+    }
+    
+    .content-body {
+        padding: 15px !important;
+    }
+
+    /* 4. Inputs aur Fields ko bade aur mobile input friendly banao */
+    .input-group-premium input, 
+    .input-group-premium select, 
+    .input-group-premium textarea,
+    #prodStock {
+        font-size: 16px !important; /* Mobile auto-zoom lock karne ke liye */
+        padding: 12px !important;
+        width: 100% !important;
+    }
+
+    /* 5. Sabse Dheet cheez: Tables ko phone friendly cards mein badlo */
+    .master-data-table, 
+    .master-data-table thead, 
+    .master-data-table tbody, 
+    .master-data-table th, 
+    .master-data-table td, 
+    .master-data-table tr {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Table ki headings mitao phone par kyunki space khata hai */
+    .master-data-table thead {
+        display: none !important;
+    }
+
+    /* Har ek entry ko ek sweet card box banao */
+    .master-data-table tr {
+        background: var(--bg-card) !important;
+        margin-bottom: 15px !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+        border: 1px solid var(--border-subtle) !important;
+    }
+
+    /* Table ke cells ko vertical spacing do aur aamne saamne set karo */
+    .master-data-table td {
+        text-align: left !important;
+        padding: 8px 0 !important;
+        border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 14px !important;
+    }
+    
+    .master-data-table td:last-child {
+        border-bottom: none !important;
+        margin-top: 5px !important;
+        flex-wrap: wrap !important;
+        gap: 5px;
+    }
+}
