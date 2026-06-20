@@ -1,4 +1,4 @@
-const API_BASE = "https://shrimaruti-backend.onrender.com";
+const API_BASE = "http://10.118.209.176:5000";
 let cart = [];
 let currentProduct = null;
 let allProducts = [];
@@ -18,23 +18,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     successModal = document.getElementById('successModal');
     trackOrderModal = document.getElementById('trackOrderModal');
 
-    // purani line hatao aur isko dalo:
-try {
-    const response = await fetch(`${API_BASE}/api/products`);
-    allProducts = await response.json();
-    
-    // IMAGE PATH FIX: Agar image ke aage backend ka URL nahi laga hai, toh use sahi karo
-    allProducts = allProducts.map(p => {
-        if (p.image && !p.image.startsWith('http')) {
-            p.image = `${API_BASE}${p.image.startsWith('/') ? '' : '/'}${p.image}`;
-        }
-        return p;
-    });
-
-    renderProducts('All'); 
-} catch (error) { 
-    console.error("Server connection error:", error); 
-}
+    // Fetch and Load Core Database Products
+    try {
+        const response = await fetch(`${API_BASE}/api/products`);
+        allProducts = await response.json();
+        renderProducts('All'); 
+    } catch (error) { 
+        console.error("Server connection error:", error); 
+    }
 
 // Fetch Dynamic Banner For Customers & Editor
     try {
