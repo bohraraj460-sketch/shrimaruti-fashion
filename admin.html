@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMF Admin | Command Center</title>
     <link rel="stylesheet" href="admin.css">
 </head>
@@ -14,16 +14,27 @@
                 <div class="shop-avatar">SM</div>
                 <div class="shop-meta"><h3>Admin Console</h3><p>Shri Maruti Fashion</p></div>
             </div>
-          <div class="sidebar-navigation">
+        <div class="sidebar-navigation">
+                
                 <button class="menu-node active">📊 Dashboard</button>
-                 <button class="menu-node" style="color:var(--text-gold); width:100%; margin-top: 10px;" onclick="window.open('index.html', '_blank')">👁️ Live Store</button>
-                <button onclick="window.open('index.html?mode=edit', '_blank')" style="width: 100%; margin-top: 30px; background: linear-gradient(45deg, #ff3f6c, #ff9800); color: white; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 63, 108, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px;">
-    🎨 Customize Site
-</button>
-                </button>
-            </div>
-        </div>
+                
+                <button onclick="window.open('http://127.0.0.1:5500/index.html', '_blank')" class="menu-node" style="color: var(--text-gold);">👁️ Live Store</button>
+                
+                <button onclick="window.open('http://127.0.0.1:5500/index.html?mode=edit', '_blank')" class="menu-node">🎨 Customize Site</button>
+                
+                <div style="margin-top: 15px; width: 100%;">
+                    <button type="button" onclick="toggleGridDropdown()" class="menu-node" style="background: rgba(255, 63, 108, 0.1); color: #ff3f6c; font-weight: bold; border: 1px solid rgba(255, 63, 108, 0.2);">
+                        ➕ Add New Grid
+                    </button>
+                    
+                    <div id="gridSectionDropdown" style="display: none; margin-top: 5px; background: #1a1a26; border: 1px solid #ff3f6c; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                        <div onclick="selectGridSection('Home')" style="padding: 12px 15px; color: white; font-size: 13px; cursor: pointer; border-bottom: 1px solid #2a2a35; transition: 0.2s;" onmouseover="this.style.background='#ff3f6c'" onmouseout="this.style.background='transparent'">🏠 Home (Main Page)</div>
+                        <div onclick="selectGridSection('Cosmetics')" style="padding: 12px 15px; color: white; font-size: 13px; cursor: pointer; border-bottom: 1px solid #2a2a35; transition: 0.2s;" onmouseover="this.style.background='#ff3f6c'" onmouseout="this.style.background='transparent'">💄 Cosmetics</div>
+                        <div onclick="selectGridSection('Hosiery')" style="padding: 12px 15px; color: white; font-size: 13px; cursor: pointer; border-bottom: 1px solid #2a2a35; transition: 0.2s;" onmouseover="this.style.background='#ff3f6c'" onmouseout="this.style.background='transparent'">🧦 Hosiery</div>
+                    </div>
+                </div>
 
+            </div>
         <div class="main-viewport">
             <div class="top-nav-bar">
                 <h1>Command Center</h1>
@@ -47,15 +58,18 @@
     
 <input type="number" id="prodStock" class="form-input" placeholder="Total Stock Quantity (e.g., 50)" required style="margin-bottom: 10px;">
 
-    <div class="input-group-premium">
-        <label>Category</label>
-        <select id="prodCategory" required style="width: 100%; padding: 14px; background: #1a1a26; border-radius: 8px; color: white;">
-            <option value="Cosmetics">Cosmetics</option>
-            <option value="Hosiery">Hosiery</option>
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-        </select>
-    </div>
+    <div style="margin-bottom: 15px; text-align: left;">
+    <label style="display: block; font-size: 13px; margin-bottom: 5px; color: #bbb; font-family: sans-serif;">Select Section / Tab</label>
+    <select id="productCategorySelect" onchange="toggleNewCategoryInput()" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a35; color: white; font-size: 14px; box-sizing: border-box; outline: none;">
+        <option value="Trending Products">home</option>
+        <option value="Hosiery">Hosiery</option>
+        <option value="Cosmetics">Cosmetics</option>
+        <option value="Men">Men</option>
+        <option value="__NEW__">➕ Add Custom New Section...</option>
+    </select>
+    
+    <input type="text" id="customCategoryInput" style="display: none; width: 100%; margin-top: 10px; padding: 12px; border-radius: 6px; border: 1px solid #ff3f6c; background: #2a2a35; color: white; font-size: 14px; box-sizing: border-box;" placeholder="Type New Section Name (e.g., Summer Sale)">
+</div>
     
     <div class="input-group-premium">
         <label>Upload Photo</label>
