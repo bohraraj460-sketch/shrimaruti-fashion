@@ -139,3 +139,37 @@ body { font-size: 16px; }
     display: flex; justify-content: space-between; 
     font-weight: 800; font-size: 18px; 
 }
+
+/* ========================================================
+   📱 FEATURE 1: MOBILE HORIZONTAL SWIPE FOR PRODUCTS
+   ======================================================== */
+@media (max-width: 768px) {
+    /* 1. Main outer row jisme saare cards hain use row mein badlo */
+    .products-grid {
+        display: flex !important;
+        overflow-x: auto !important; /* Touch swipe scroll open karne ke liye */
+        white-space: nowrap !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important; /* Mobile smooth kinetic scroll */
+        gap: 15px !important;
+        padding: 10px 5px !important;
+    }
+
+    /* 2. Scrollbar ko thoda patla aur clean dikhane ke liye (Optional but looks pro) */
+    .products-grid::-webkit-scrollbar {
+        height: 4px !important;
+    }
+    .products-grid::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.1) !important;
+        border-radius: 10px !important;
+    }
+
+    /* 3. Aapka jo card banta hai js se, use niche girne se roko */
+    .products-grid > div, 
+    .products-grid > .product-card { 
+        flex: 0 0 160px !important; /* Card ki width 160px par lock rahegi mobile par */
+        width: 160px !important;
+        display: inline-block !important;
+        vertical-align: top !important;
+    }
+}
