@@ -544,6 +544,32 @@ function activateVisualEditor() {
     `;
     document.body.appendChild(toolbar);
 
+    // ==========================================
+// 🚀 PREMIUM TOAST NOTIFICATION OVERRIDE
+// ==========================================
+window.showPremiumToast = function(message) {
+    let toast = document.getElementById('premiumToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'premiumToast';
+        toast.style.cssText = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#282c3f; color:#fff; padding:12px 25px; border-radius:30px; font-weight:600; font-size:14px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:999999; letter-spacing:0.5px; display:none;";
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2500);
+};
+
+// Window Alert ko custom premium alert se force replace karo
+window.alert = function(msg) {
+    if (msg.includes("Login Successful") || msg.includes("added to your bag") || msg.includes("Saved Successfully")) {
+        window.showPremiumToast(msg);
+    } else {
+        // Standard normal popup rules critical warning ke liye safe rakho
+        window.showPremiumToast(msg);
+    }
+};
+
     // 2. Select Elements to Edit
     const heroSection = document.querySelector('.hero-banner');
     const heroText = document.querySelector('.hero-banner h1');
@@ -582,57 +608,59 @@ function activateVisualEditor() {
         });
     }
 
-   // 4. THE REAL SAVE LOGIC
-    let currentBase64Image = null; // Image data hold karne ke liye variable
-    
-    bgImageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                currentBase64Image = event.target.result; // Base64 string save ki
-                heroSection.style.background = `url('${currentBase64Image}') center/cover no-repeat`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+   // 4. THE REAL SAVE LOGIC (FIXED DUP ACCELERATOR)
+   let currentBase64Image = null;
+   
+   if (bgImageInput) {
+       bgImageInput.addEventListener('change', (e) => {
+           const file = e.target.files[0];
+           if(file) {
+               const reader = new FileReader();
+               reader.onload = (event) => {
+                   currentBase64Image = event.target.result; 
+                   if (heroSection) heroSection.style.background = `url('${currentBase64Image}') center/cover no-repeat`;
+               };
+               reader.readAsDataURL(file);
+           }
+       });
+   }
 
-    document.getElementById('saveDesignBtn').addEventListener('click', async () => {
-        const saveBtn = document.getElementById('saveDesignBtn');
-        saveBtn.innerText = "Saving Design... ⏳";
-        saveBtn.disabled = true;
+   document.getElementById('saveDesignBtn').addEventListener('click', async () => {
+       const saveBtn = document.getElementById('saveDesignBtn');
+       saveBtn.innerText = "Saving Design... ⏳";
+       saveBtn.disabled = true;
 
-        const payload = {
-            heading: textInput.value, // Blank hai toh blank bhejega
-            textColor: textColorInput.value,
-            bgColor: bgColorInput.value
-        };
+       const payload = {
+           heading: textInput.value,
+           textColor: textColorInput.value,
+           bgColor: bgColorInput.value
+       };
 
-        if (currentBase64Image) {
-            payload.image = currentBase64Image;
-        }
+       if (currentBase64Image) {
+           payload.image = currentBase64Image;
+       }
 
-        try {
-            const response = await fetch(`${API_BASE}/api/banner`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+       try {
+           const response = await fetch(`${API_BASE}/api/banner`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(payload)
+           });
 
-            if (response.ok) {
-                saveBtn.style.background = "#000000";
-                saveBtn.innerText = "✅ Saved Successfully!";
-                setTimeout(() => {
-                    saveBtn.style.background = "linear-gradient(45deg, #00c853, #009624)";
-                    saveBtn.innerText = "💾 Save Changes";
-                }, 2000);
-            } else {
-                alert("❌ Save failed. Backend error.");
-            }
-        } catch (err) {
-            console.error("Save Error:", err);
-        } finally {
-            saveBtn.disabled = false;
-        }
-    });
+           if (response.ok) {
+               saveBtn.style.background = "#000000";
+               window.showPremiumToast("✅ Saved Successfully!");
+               setTimeout(() => {
+                   saveBtn.style.background = "linear-gradient(45deg, #00c853, #009624)";
+                   saveBtn.innerText = "💾 Save Changes";
+               }, 2000);
+           } else {
+               window.showPremiumToast("❌ Save failed. Backend error.");
+           }
+       } catch (err) {
+           console.error("Save Error:", err);
+       } finally {
+           saveBtn.disabled = false;
+       }
+   });
 }
