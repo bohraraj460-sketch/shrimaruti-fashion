@@ -7,101 +7,167 @@
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+
+    <div class="top-nav-bar-premium">
+        <div class="hamburger-btn" onclick="toggleAdminSidebar()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <div class="panel-main-title">Admin Panel</div>
+        <div class="status-indicator-dot">● ONLINE</div>
+    </div>
+
     <div class="app-layout">
         
-        <div class="sidebar-premium">
+        <div id="adminSidebar" class="sidebar-premium">
             <div class="sidebar-header-box">
                 <div class="shop-avatar">SM</div>
                 <div class="shop-meta"><h3>Admin Console</h3><p>Shri Maruti Fashion</p></div>
+                <button class="close-sidebar-x" onclick="toggleAdminSidebar()">✕</button>
             </div>
-          <div class="sidebar-navigation">
-                <button class="menu-node active">📊 Dashboard</button>
-                <a href="http://127.0.0.1:5500/index.html" target="_blank" style="text-decoration:none; display: block; margin-top: 10px;">
-                    <button class="menu-node" style="color:var(--text-gold); width:100%;">👁️ Live Store</button>
-                </a>
+            
+            <div class="sidebar-navigation">
+                <button class="menu-node active" onclick="closeSidebarAndScrollHome()">📊 Dashboard</button>
+                <button class="menu-node" id="liveStoreNavBtn">👁️ Live Store</button>
+                <button class="menu-node" onclick="openFullscreenModal('siteCustomizerModal')">🎨 Customize Site</button>
                 
-                <button onclick="window.open('http://127.0.0.1:5500/index.html?mode=edit', '_blank')" 
-                        style="width: 100%; margin-top: 30px; background: linear-gradient(45deg, #ff3f6c, #ff9800); color: white; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 63, 108, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    🎨 Customize Site
-                </button>
+                <div class="nested-dropdown-node">
+                    <button class="menu-node" onclick="toggleSidebarGridOptions()">➕ Add New Grid</button>
+                    <div id="sidebarGridDropdown" class="sidebar-nested-container">
+                        <select id="gridTargetSection">
+                            <option value="Home">Home (Main Page)</option>
+                            <option value="Cosmetics">Cosmetics</option>
+                            <option value="Hosiery">Hosiery</option>
+                            <option value="Men">Men</option>
+                        </select>
+                        <input type="text" id="newGridNameInput" placeholder="Write Grid Name...">
+                        <button type="button" onclick="triggerGridDeployment()" class="btn-grid-submit">Deploy Grid</button>
+                    </div>
+                </div>
+
+                <button class="menu-node" onclick="openFullscreenModal('productsViewModal')">📦 Live Database Product</button>
+                <button class="menu-node" onclick="openFullscreenModal('ordersViewModal')">🚚 Customer Live Orders</button>
+                <button class="menu-node" onclick="openFullscreenModal('customersViewModal')">👥 Customer Directory</button>
             </div>
         </div>
 
         <div class="main-viewport">
-            <div class="top-nav-bar">
-                <h1>Command Center</h1>
-                <div style="color: #00c853; font-weight: bold; font-size: 12px;">● ONLINE</div>
+            
+            <div class="chart-container-3d">
+                <div class="chart-title">Live Store Analytics (Product Vector Distribution)</div>
+                <div class="mock-3d-bar-chart">
+                    <div class="bar-3d" style="height: 70%;" data-label="Home"><span class="bar-val">70%</span></div>
+                    <div class="bar-3d" style="height: 45%;" data-label="Cosmetics"><span class="bar-val">45%</span></div>
+                    <div class="bar-3d" style="height: 85%;" data-label="Hosiery"><span class="bar-val">85%</span></div>
+                    <div class="bar-3d" style="height: 35%;" data-label="Men"><span class="bar-val">35%</span></div>
+                </div>
             </div>
 
-            <div class="content-body">
-                <div class="metrics-grid">
-                    <div class="metric-glass-card"><div class="card-meta">Total Sales</div><div class="value-display" style="color:var(--text-gold);">₹0</div></div>
-                    <div class="metric-glass-card"><div class="card-meta">Live Products</div><div class="value-display" id="totalProducts">0</div></div>
-                </div>
+            <div class="metrics-grid">
+                <div class="metric-glass-card"><div class="card-meta">Total Sales</div><div class="value-display" style="color:var(--text-gold);">₹0</div></div>
+                <div class="metric-glass-card"><div class="card-meta">Live Products</div><div class="value-display" id="totalProducts">0</div></div>
+            </div>
 
-              
-                <div class="premium-form-card">
-                    <h3>Deploy New Item</h3>
-                    <form id="addProductForm">
-    <div class="input-group-premium"><label>Product Title</label><input type="text" id="prodTitle" required></div>
-    <div class="input-group-premium"><label>Price (₹)</label><input type="number" id="prodPrice" required></div>
-    <div class="input-group-premium"><label>Discount Tag (e.g. 30% OFF)</label><input type="text" id="prodDiscount" required></div>
-    <div class="input-group-premium"><label>Full Description</label><textarea id="prodDesc" style="width:100%; padding:14px; background:#1a1a26; color:white; border-radius:8px;" required></textarea></div>
-    
-<input type="number" id="prodStock" class="form-input" placeholder="Total Stock Quantity (e.g., 50)" required style="margin-bottom: 10px;">
+            <div class="premium-form-card">
+                <h3>Deploy New Item</h3>
+                <form id="addProductForm">
+                    <div class="input-group-premium"><label>Product Title</label><input type="text" id="prodTitle" required></div>
+                    <div class="input-group-premium"><label>Price (₹)</label><input type="number" id="prodPrice" required></div>
+                    <div class="input-group-premium"><label>Discount Tag (e.g. 30% OFF)</label><input type="text" id="prodDiscount" required></div>
+                    <div class="input-group-premium"><label>Full Description</label><textarea id="prodDesc" style="width:100%; padding:14px; background:#1a1a26; color:white; border-radius:8px; border:1px solid #333; resize:none;" rows="3" required></textarea></div>
+                    
+                    <div class="input-group-premium"><label>Total Stock Quantity</label><input type="number" id="prodStock" placeholder="e.g., 50" required style="width:100%; padding:12px; background:#1a1a26; color:white; border-radius:8px; border:1px solid #333; box-sizing:border-box;"></div>
 
-    <div class="input-group-premium">
-        <label>Category</label>
-        <select id="prodCategory" required style="width: 100%; padding: 14px; background: #1a1a26; border-radius: 8px; color: white;">
-            <option value="Cosmetics">Cosmetics</option>
-            <option value="Hosiery">Hosiery</option>
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-        </select>
-    </div>
-    
-    <div class="input-group-premium">
-        <label>Upload Photo</label>
-        <input type="file" id="prodImage" accept="image/*" required style="color: white; padding: 10px; width: 100%;">
-    </div>
-    <button type="submit" class="btn-submit-product">Inject to Database</button>
-</form>
-</div>
-
-            <div class="database-section-premium" style="margin-top: 30px;">
-                    <h3>Live Database (Products)</h3>
-                    <table class="master-data-table">
-                        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
-                        <tbody id="productTableBody"></tbody>
-                    </table>
-                </div>
-
-                <div class="database-section-premium" style="margin-top: 30px;">
-                    <h3>Customer Orders (Live Tracker)</h3>
-                    <table class="master-data-table">
-                        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Update</th></tr></thead>
-                        <tbody id="ordersTableBody"></tbody>
-                    </table>
-                </div>
+                    <div class="input-group-premium">
+                        <label>Category</label>
+                        <select id="prodCategory" required style="width: 100%; padding: 14px; background: #1a1a26; border-radius: 8px; color: white; border:1px solid #333;">
+                            <option value="Cosmetics">Cosmetics</option>
+                            <option value="Hosiery">Hosiery</option>
+                            <option value="Men">Men</option>
+                            <option value="Women">Women</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group-premium">
+                        <label>Upload Photo</label>
+                        <input type="file" id="prodImage" accept="image/*" required style="color: white; padding: 10px; width: 100%;">
+                    </div>
+                    <button type="submit" class="btn-submit-product">Inject to Database</button>
+                </form>
+            </div>
         </div>
     </div>
-    
-    <script src="admin.js"></script>
+
+    <div id="productsViewModal" class="fullscreen-data-modal">
+        <div class="modal-nav-header">
+            <h2>📦 Live Database Products Master</h2>
+            <button class="modal-exit-btn" onclick="closeFullscreenModal('productsViewModal')">✕ Back to Form</button>
+        </div>
+        <div class="modal-scroll-area">
+            <div class="single-line-list-header"><span>Product Engine Metadata</span><span>Category Tab</span><span>Actions Control</span></div>
+            <div id="productTableBody" class="compact-column-container"></div>
+        </div>
+    </div>
+
+    <div id="ordersViewModal" class="fullscreen-data-modal">
+        <div class="modal-nav-header">
+            <h2>🚚 Customer Live Orders Tracker</h2>
+            <button class="modal-exit-btn" onclick="closeFullscreenModal('ordersViewModal')">✕ Back to Form</button>
+        </div>
+        <div class="modal-scroll-area">
+            <div class="single-line-list-header"><span>Order Token ID / Client Info</span><span>Financial Total</span><span>Status Node</span></div>
+            <div id="ordersTableBody" class="compact-column-container"></div>
+        </div>
+    </div>
+
+    <div id="customersViewModal" class="fullscreen-data-modal">
+        <div class="modal-nav-header">
+            <h2>👥 Customer Phone & Name Directory</h2>
+            <button class="modal-exit-btn" onclick="closeFullscreenModal('customersViewModal')">✕ Back to Form</button>
+        </div>
+        <div class="modal-scroll-area">
+            <div class="single-line-list-header"><span>Verified Customer Name</span><span>Mobile Contact Number</span><span>Action Stream</span></div>
+            <div id="customersTableBody" class="compact-column-container"></div>
+        </div>
+    </div>
+
+    <div id="siteCustomizerModal" class="fullscreen-data-modal">
+        <div class="modal-nav-header">
+            <h2>🎨 Absolute Site Element Customizer</h2>
+            <button class="modal-exit-btn" onclick="closeFullscreenModal('siteCustomizerModal')">✕ Close Engine</button>
+        </div>
+        <div class="modal-scroll-area" style="max-width: 600px; margin: 0 auto; padding-top:20px;">
+            <div class="premium-form-card">
+                <div class="input-group-premium"><label>Global Logo Text Header</label><input type="text" id="customLogoText" placeholder="Shri Maruti Fashion"></div>
+                <div class="input-group-premium"><label>Search Bar Placeholder Text</label><input type="text" id="customSearchPlaceholder" placeholder="Search patterns..."></div>
+                <div class="input-group-premium"><label>Hero Banner Text Title</label><input type="text" id="editBannerText"></div>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div style="flex:1;"><label style="color:#bbb; font-size:12px;">Text Color Accent</label><input type="color" id="editTextColor" value="#ffffff" style="width:100%; height:40px; background:none; border:none; padding:0;"></div>
+                    <div style="flex:1;"><label style="color:#bbb; font-size:12px;">Background Accent Color</label><input type="color" id="editBgColor" value="#ff3f6c" style="width:100%; height:40px; background:none; border:none; padding:0;"></div>
+                </div>
+                
+                <div class="input-group-premium"><label>Upload Banner Background Image</label><input type="file" id="editBgImage" accept="image/*" style="color:white; width:100%;"></div>
+                <button type="button" id="saveGlobalDesignBtn" style="width:100%; padding:14px; background:linear-gradient(45deg, #00c853, #009624); border:none; color:white; font-weight:bold; border-radius:6px; cursor:pointer;">💾 Deploy Changes Across Whole Site</button>
+            </div>
+        </div>
+    </div>
 
     <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:5000; justify-content:center; align-items:center;">
         <div class="premium-form-card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; background:#12121a;">
-            <h3 style="margin-bottom: 20px; border-left: 4px solid var(--text-gold); padding-left:10px;">Edit Product</h3>
+            <h3 style="margin-bottom: 20px; border-left: 4px solid var(--text-gold); padding-left:10px; color:white;">Edit Product</h3>
             <form id="editProductForm">
                 <input type="hidden" id="editProdId">
                 <div class="input-group-premium"><label>Product Title</label><input type="text" id="editProdTitle" required></div>
                 <div class="input-group-premium"><label>Price (₹)</label><input type="number" id="editProdPrice" required></div>
-                <input type="number" id="editProdStock" class="form-input" placeholder="Update Stock Quantity" required style="margin-bottom: 10px;">
+                <input type="number" id="editProdStock" placeholder="Update Stock Quantity" required style="margin-bottom: 10px; width:100%; padding:12px; background:#1a1a26; color:white; border-radius:8px; border:1px solid #333; box-sizing:border-box;">
                 <div class="input-group-premium"><label>Discount Tag</label><input type="text" id="editProdDiscount" required></div>
-                <div class="input-group-premium"><label>Full Description</label><textarea id="editProdDesc" style="width:100%; padding:14px; background:#1a1a26; color:white; border-radius:8px;" required></textarea></div>
+                <div class="input-group-premium"><label>Full Description</label><textarea id="editProdDesc" style="width:100%; padding:14px; background:#1a1a26; color:white; border-radius:8px; border:1px solid #333; resize:none;" rows="3" required></textarea></div>
                 
                 <div class="input-group-premium">
                     <label>Category</label>
-                    <select id="editProdCategory" style="width: 100%; padding: 14px; background: #1a1a26; border-radius: 8px; color: white;">
+                    <select id="editProdCategory" style="width: 100%; padding: 14px; background: #1a1a26; border-radius: 8px; color: white; border:1px solid #333;">
                         <option value="Cosmetics">Cosmetics</option>
                         <option value="Hosiery">Hosiery</option>
                         <option value="Men">Men</option>
@@ -110,16 +176,39 @@
                 </div>
                 
                 <div class="input-group-premium">
-                    <label>Upload New Photo <span style="color:#888;">(Leave blank to keep old image)</span></label>
+                    <label>Upload New Photo <span style="color:#888;">(Leave blank to keep old)</span></label>
                     <input type="file" id="editProdImage" accept="image/*" style="color: white; padding: 10px; width: 100%;">
                 </div>
                 
-            <button type="button" class="btn-submit-product" id="saveEditBtn" onclick="saveEditedProduct()" style="background:#00c853; color:white;">Save Updates</button>
-                <button type="button" class="btn-submit-product" onclick="document.getElementById('editModal').style.display='none'" style="background:#333; color:white; margin-top:10px;">Cancel</button>
+                <button type="button" class="btn-submit-product" id="saveEditBtn" onclick="saveEditedProduct()" style="background:#00c853; color:white; width:100%; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Save Updates</button>
+                <button type="button" class="btn-submit-product" onclick="document.getElementById('editModal').style.display='none'" style="background:#333; color:white; margin-top:10px; width:100%; padding:12px; border:none; border-radius:6px; cursor:pointer;">Cancel</button>
             </form>
         </div>
     </div>
+
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            if (sidebar) sidebar.classList.toggle('active');
+        }
+        function closeSidebarAndScrollHome() {
+            toggleAdminSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function toggleSidebarGridOptions() {
+            const dropdown = document.getElementById('sidebarGridDropdown');
+            if (dropdown) dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+        }
+        function openFullscreenModal(modalId) {
+            toggleAdminSidebar(); // Auto-close sidebar
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'flex';
+        }
+        function closeFullscreenModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        }
+    </script>
+    <script src="admin.js"></script>
 </body>
 </html>
-
-

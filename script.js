@@ -129,6 +129,23 @@ function renderCustomArray(array) {
     array.forEach(product => {
         const oldPrice = Math.floor(product.price * 1.3);
         const discountTag = product.discount || "10% OFF"; 
+
+        const sectionTitle = document.createElement('h2');
+        sectionTitle.className = "section-title";
+        
+        // 🎨 NAYA PREMIUM LOOK: Border aur shadow automatic generate hoga har section par
+        sectionTitle.style.cssText = "font-size:24px; margin-top: 40px; font-weight:800; color:#12121a; letter-spacing:0.5px; border-left: 5px solid #ff3f6c; padding-left: 12px; margin-bottom: 15px;";
+        
+        // Dynamic Emoji Engine: Category ke mutabik automatic icon set karega
+        let emoji = "✨";
+        const upperCat = catName.toUpperCase();
+        if (upperCat.includes("COSMETIC")) emoji = "💄";
+        else if (upperCat.includes("HOSIERY")) emoji = "🧦";
+        else if (upperCat.includes("MEN")) emoji = "👨";
+        else if (upperCat.includes("TRENDING")) emoji = "🔥";
+        else if (upperCat.includes("WOMEN")) emoji = "👗";
+
+        sectionTitle.innerHTML = `${emoji} ${catName}`;
         
         // --- SMART STOCK CHECKER ---
         let actualStock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 10;
