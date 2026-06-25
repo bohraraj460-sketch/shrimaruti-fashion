@@ -1,3 +1,6 @@
+// ========================================================
+// ⚡ SHRI MARUTI FASHION - CUSTOMER ENGINE CORE (PART 1)
+// ========================================================
 const API_BASE = "https://shrimaruti-backend.onrender.com";
 let cart = [];
 let currentProduct = null;
@@ -27,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Server connection error:", error); 
     }
 
-// Fetch Dynamic Banner For Customers & Editor
+    // Fetch Dynamic Banner For Customers & Editor
     try {
         const bannerRes = await fetch(`${API_BASE}/api/banner`);
         if (bannerRes.ok) {
@@ -36,14 +39,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const heroText = document.querySelector('.hero-banner h1');
             
             if (heroSection && heroText) {
-                // Text Apply
                 if (bannerData.heading !== undefined) heroText.innerText = bannerData.heading;
-                
-                // Colors Apply
                 if (bannerData.textColor) heroText.style.color = bannerData.textColor;
                 if (bannerData.bgColor) heroSection.style.backgroundColor = bannerData.bgColor;
                 
-                // Image Apply (Agar image hai, toh color hide ho jayega)
                 if (bannerData.image && bannerData.image.length > 100) {
                     heroSection.style.background = `url('${bannerData.image}') center/cover no-repeat`;
                 }
@@ -51,15 +50,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     } catch (err) { console.error("Banner fetch error:", err); }
               
-    
     // Category Tabs Logic
     document.querySelectorAll(".tab").forEach(tab => {
         tab.addEventListener("click", (e) => {
             document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
             
             const selectedCategory = e.target.getAttribute('data-category');
-            const matchingTabs = document.querySelectorAll(`.tab[data-category="${selectedCategory}"]`);
-            matchingTabs.forEach(t => t.classList.add("active"));
+            document.querySelectorAll(`.tab[data-category="${selectedCategory}"]`).forEach(t => t.classList.add("active"));
             
             renderProducts(selectedCategory);
             
@@ -68,19 +65,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
-    // Sidebar & Bottom Nav Triggers
     attachNavigationTriggers();
 });
 
 function attachNavigationTriggers() {
-    const menuToggle = document.getElementById('menuToggle'); // Hamburger icon
+    const menuToggle = document.getElementById('menuToggle'); 
     const sidebar = document.getElementById('sidebar');
     const closeBtn = document.getElementById('closeBtn');
 
     if (menuToggle && sidebar) menuToggle.addEventListener('click', () => sidebar.classList.add('active'));
     if (closeBtn && sidebar) closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
 
-    // Sorting & Filtering Open Click Config
     document.querySelectorAll('.bottom-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const action = e.target.innerText;
@@ -89,7 +84,6 @@ function attachNavigationTriggers() {
         });
     });
 
-    // Track Orders Sidebar Hook
     document.querySelectorAll('.sidebar-menu li').forEach(li => {
         if (li.innerText.includes('Track Orders')) {
             li.addEventListener('click', () => {
@@ -105,23 +99,66 @@ function attachNavigationTriggers() {
 }
 
 // ==========================================
-// 1. PRODUCTS RENDERING ALGORITHM
+// 1. PRODUCTS RENDERING MULTI-GRID ALGORITHM (MALL VIBE)
 // ==========================================
 function renderProducts(category) {
-    let displayProducts = category === 'All' ? allProducts : allProducts.filter(p => p.category === category);
-    renderCustomArray(displayProducts);
+    const container = document.getElementById('dynamicStoreFrontContainer');
+    if (!container) return;
+
+    // View Clear state controller
+    container.innerHTML = "";
+
+    // Specific category selected route navigation loop
+    if (category !== 'All') {
+        let displayProducts = allProducts.filter(p => p.category === category);
+        buildCategoryRowBlock(category, displayProducts, container);
+        return;
+    }
+
+    // Default Home view: Extracts all available dynamic grids across database entries
+    let categories = [...new Set(allProducts.map(p => p.category || 'General'))];
+    
+    // Sort trending fields to always load on top row sequence
+    categories.sort((a, b) => {
+        if(a.toUpperCase().includes("TRENDING")) return -1;
+        if(b.toUpperCase().includes("TRENDING")) return 1;
+        return 0;
+    });
+
+    categories.forEach(catName => {
+        let displayProducts = allProducts.filter(p => p.category === catName);
+        if (displayProducts.length > 0) {
+            buildCategoryRowBlock(catName, displayProducts, container);
+        }
+    });
 }
 
-function renderCustomArray(array) {
-    const liveGrid = document.getElementById('liveProductsGrid');
-    const newArrivalsGrid = document.getElementById('newArrivalsGrid'); 
-    if (!liveGrid) return;
+function buildCategoryRowBlock(catName, productsArray, mainTargetContainer) {
+    let emoji = "✨";
+    const upperCat = catName.toUpperCase();
+    if (upperCat.includes("COSMETIC")) emoji = "💄";
+    else if (upperCat.includes("HOSIERY")) emoji = "🧦";
+    else if (upperCat.includes("MEN")) emoji = "👨";
+    else if (upperCat.includes("TRENDING")) emoji = "🔥";
+    else if (upperCat.includes("WOMEN")) emoji = "👗";
+
+    const titleHeader = document.createElement('h2');
+    titleHeader.className = "section-title";
+    titleHeader.style.cssText = "font-size:24px; margin-top: 35px; font-weight:800; color:#12121a; letter-spacing:0.5px; border-left: 5px solid #ff3f6c; padding-left: 12px; margin-bottom: 15px;";
+    titleHeader.innerHTML = `${emoji} ${catName.toUpperCase()}`;
+
+    const productsGridDiv = document.createElement('div');
+    productsGridDiv.className = "products-grid";
     
-    liveGrid.innerHTML = "";
-    if (newArrivalsGrid) newArrivalsGrid.innerHTML = "";
-    
+    mainTargetContainer.appendChild(titleHeader);
+    mainTargetContainer.appendChild(productsGridDiv);
+
+    renderCustomArray(productsArray, productsGridDiv);
+}
+
+function renderCustomArray(array, targetGridElement) {
     if (array.length === 0) {
-        liveGrid.innerHTML = "<p style='padding:20px; font-weight:bold; color:#ff3f6c;'>No products found matching this filter.</p>";
+        targetGridElement.innerHTML = "<p style='padding:20px; font-weight:bold; color:#ff3f6c;'>No products found matching this filter.</p>";
         return;
     }
     
@@ -129,26 +166,8 @@ function renderCustomArray(array) {
     array.forEach(product => {
         const oldPrice = Math.floor(product.price * 1.3);
         const discountTag = product.discount || "10% OFF"; 
-
-        const sectionTitle = document.createElement('h2');
-        sectionTitle.className = "section-title";
-        
-        // 🎨 NAYA PREMIUM LOOK: Border aur shadow automatic generate hoga har section par
-        sectionTitle.style.cssText = "font-size:24px; margin-top: 40px; font-weight:800; color:#12121a; letter-spacing:0.5px; border-left: 5px solid #ff3f6c; padding-left: 12px; margin-bottom: 15px;";
-        
-        // Dynamic Emoji Engine: Category ke mutabik automatic icon set karega
-        let emoji = "✨";
-        const upperCat = catName.toUpperCase();
-        if (upperCat.includes("COSMETIC")) emoji = "💄";
-        else if (upperCat.includes("HOSIERY")) emoji = "🧦";
-        else if (upperCat.includes("MEN")) emoji = "👨";
-        else if (upperCat.includes("TRENDING")) emoji = "🔥";
-        else if (upperCat.includes("WOMEN")) emoji = "👗";
-
-        sectionTitle.innerHTML = `${emoji} ${catName}`;
-        
-        // --- SMART STOCK CHECKER ---
         let actualStock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 10;
+        
         if (!currentQuantities[product._id]) currentQuantities[product._id] = 1;
         
         let stockHtml = "";
@@ -183,14 +202,16 @@ function renderCustomArray(array) {
         `;
     });
     
-    liveGrid.innerHTML = htmlContent;
-    if (newArrivalsGrid) newArrivalsGrid.innerHTML = htmlContent; 
-    
+    targetGridElement.innerHTML = htmlContent;
     setTimeout(attachProductClickEvent, 200);
 }
 
+// ========================================================
+// ⚡ SHRI MARUTI FASHION - CUSTOMER ENGINE CORE (PART 2)
+// ========================================================
+
 // ==========================================
-// 2. PRODUCT DETAILS & REAL REVIEWS MODAL
+// 2. PRODUCT DETAILS & REVIEWS CORE BINDING
 // ==========================================
 function attachProductClickEvent() {
     document.querySelectorAll('.product-card').forEach(card => {
@@ -218,17 +239,17 @@ function attachProductClickEvent() {
                 modalAddBtn.disabled = true;
             }
 
-            // Real Reviews
             const reviewsDiv = document.getElementById('realReviewsList');
-            reviewsDiv.innerHTML = "";
-            if (currentProduct.reviews && currentProduct.reviews.length > 0) {
-                currentProduct.reviews.forEach(r => {
-                    reviewsDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:8px 0; color:black;"><strong>${r.user}</strong>: ${r.text}</div>`;
-                });
-            } else {
-                reviewsDiv.innerHTML = "<p style='color:gray; font-size:14px;'>No reviews yet. Be the first to review!</p>";
+            if(reviewsDiv) {
+                reviewsDiv.innerHTML = "";
+                if (currentProduct.reviews && currentProduct.reviews.length > 0) {
+                    currentProduct.reviews.forEach(r => {
+                        reviewsDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:8px 0; color:black;"><strong>${r.user}</strong>: ${r.text}</div>`;
+                    });
+                } else {
+                    reviewsDiv.innerHTML = "<p style='color:gray; font-size:14px;'>No reviews yet. Be the first to review!</p>";
+                }
             }
-
             productDetailModal.style.display = 'flex';
         });
     });
@@ -237,7 +258,6 @@ function attachProductClickEvent() {
 const closeDetailBtn = document.getElementById('closeDetailBtn');
 if(closeDetailBtn) closeDetailBtn.addEventListener('click', () => productDetailModal.style.display = 'none');
 
-// Review Submission
 document.getElementById('submitReviewBtn').addEventListener('click', async () => {
     if (!isLoggedIn) return alert("Please login to post a review.");
     const text = document.getElementById('newReviewInput').value.trim();
@@ -254,15 +274,15 @@ document.getElementById('submitReviewBtn').addEventListener('click', async () =>
         document.getElementById('newReviewInput').value = "";
         
         const reviewsDiv = document.getElementById('realReviewsList');
-        if(reviewsDiv.innerHTML.includes("No reviews yet")) reviewsDiv.innerHTML = "";
-        reviewsDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:8px 0; color:black;"><strong>${userPhone}</strong>: ${text}</div>`;
-    } catch (e) { 
-        alert("Failed to post review"); 
-    }
+        if(reviewsDiv) {
+            if(reviewsDiv.innerHTML.includes("No reviews yet")) reviewsDiv.innerHTML = "";
+            reviewsDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:8px 0; color:black;"><strong>${userPhone}</strong>: ${text}</div>`;
+        }
+    } catch (e) { alert("Failed to post review"); }
 });
 
 // ==========================================
-// 3. AUTHENTICATION & PROFILE
+// 3. REGISTRATION ENGINE & FORCED PROMPTS
 // ==========================================
 const phoneInput = document.getElementById('phoneInput');
 const termsCheck = document.getElementById('termsCheck');
@@ -274,12 +294,11 @@ document.getElementById('profileBtn').addEventListener('click', () => {
 });
 
 function validateAuthForm() {
-    if (termsCheck.checked && phoneInput.value.length >= 10) authContinueBtn.classList.add('active');
+    if (termsCheck && phoneInput && termsCheck.checked && phoneInput.value.length >= 10) authContinueBtn.classList.add('active');
     else authContinueBtn.classList.remove('active');
 }
-
-termsCheck.addEventListener('change', validateAuthForm);
-phoneInput.addEventListener('input', validateAuthForm);
+if(termsCheck) termsCheck.addEventListener('change', validateAuthForm);
+if(phoneInput) phoneInput.addEventListener('input', validateAuthForm);
 
 authContinueBtn.addEventListener('click', () => {
     if (phoneInput.value.length < 10) return alert("Enter a valid 10-digit mobile number");
@@ -292,25 +311,19 @@ authContinueBtn.addEventListener('click', () => {
 });
 
 function enforceLogin(callback) {
-    if (!isLoggedIn) {
-        authModal.style.display = 'flex'; 
-        return;
-    }
+    if (!isLoggedIn) { authModal.style.display = 'flex'; return; }
     callback();
 }
 
 // ==========================================
-// 4. FLOATING BAG & SMART CART
+// 4. BAG, DYNAMIC MATH HOOKS & FLOATING CART
 // ==========================================
 window.updateQty = function(productId, change, maxStock) {
     if (!currentQuantities[productId]) currentQuantities[productId] = 1;
     let newQty = currentQuantities[productId] + change;
     
     if (newQty < 1) newQty = 1;
-    if (newQty > maxStock) {
-        alert(`Only ${maxStock} items left in stock!`);
-        newQty = maxStock;
-    }
+    if (newQty > maxStock) { alert(`Only ${maxStock} items left in stock!`); newQty = maxStock; }
     
     currentQuantities[productId] = newQty;
     document.querySelectorAll(`.qty-display-${productId}`).forEach(el => el.innerText = newQty);
@@ -350,7 +363,6 @@ function updateFloatingCartUI() {
     fBtn.innerText = `🛒 Bag (${cart.length})`;
 }
 
-// View Cart Details
 document.getElementById('viewCartBtn').addEventListener('click', (e) => {
     e.preventDefault();
     enforceLogin(() => {
@@ -369,11 +381,10 @@ document.getElementById('viewCartBtn').addEventListener('click', (e) => {
         cartModal.style.display = 'flex';
     });
 });
-
-document.getElementById('closeCartBtn').addEventListener('click', () => cartModal.style.display = 'none');
+if(document.getElementById('closeCartBtn')) document.getElementById('closeCartBtn').addEventListener('click', () => cartModal.style.display = 'none');
 
 // ==========================================
-// 5. CHECKOUT FLOW
+// 5. SERVER CHECKOUT ENGINE
 // ==========================================
 document.getElementById('proceedToAddressBtn').addEventListener('click', () => {
     if (cart.length === 0) return alert("Bag is empty!");
@@ -431,13 +442,18 @@ window.downloadBill = function() {
 };
 
 // ==========================================
-// 6. SORT & FILTER
+// 6. PIPELINE FILTERS (SORT & BUDGET)
 // ==========================================
 window.applySort = function(type) {
     let sortedArray = [...allProducts];
     if (type === 'Low') sortedArray.sort((a, b) => a.price - b.price);
     if (type === 'High') sortedArray.sort((a, b) => b.price - a.price);
-    renderCustomArray(sortedArray);
+    
+    const container = document.getElementById('dynamicStoreFrontContainer');
+    if(container) {
+        container.innerHTML = "";
+        buildCategoryRowBlock(`SORTED: PRICE ${type}`, sortedArray, container);
+    }
     document.getElementById('sortModal').style.display = 'none';
 };
 
@@ -445,13 +461,17 @@ window.applyFilter = function() {
     const max = parseInt(document.getElementById('budgetInput').value);
     if (max) {
         const filteredArray = allProducts.filter(p => p.price <= max);
-        renderCustomArray(filteredArray);
+        const container = document.getElementById('dynamicStoreFrontContainer');
+        if(container) {
+            container.innerHTML = "";
+            buildCategoryRowBlock(`FILTERED BUDGET: UNDER ₹${max}`, filteredArray, container);
+        }
     }
     document.getElementById('filterModal').style.display = 'none';
 };
 
 // ==========================================
-// 7. TRACK & CANCEL ORDER
+// 7. CLIENT ORDER MONITOR TRACKING LOGIC
 // ==========================================
 let activeTrackOrderId = null; 
 
@@ -464,28 +484,19 @@ window.findMyOrder = async function() {
         if (!response.ok) return alert("Order ID not found in database.");
         
         const orderData = await response.json();
-        
-        // 🎯 FIX 1: Backend ko SMF- wala exact ID hi chahiye cancel route ke liye
         activeTrackOrderId = orderData.orderId; 
 
         document.getElementById('findOrderSection').style.display = 'none';
         document.getElementById('orderDetailsSection').style.display = 'block';
-        
         document.getElementById('displayOrderStatus').innerText = orderData.status || "Processing";
-        
-        // 🎯 FIX 2: Database mein amount 'total' field mein hai, undefined nahi aayega
         document.getElementById('displayOrderTotal').innerText = orderData.total || 0; 
-    } catch (e) {
-        alert("Tracking failed.");
-    }
+    } catch (e) { alert("Tracking failed."); }
 };
 
 window.submitCancellation = async function() {
     const reason = document.getElementById('cancelReason').value;
     if (!reason) return alert("Please choose a reason for cancellation.");
-
-    const confirmCancel = confirm("Are you sure you want to cancel this order?");
-    if (!confirmCancel) return;
+    if (!confirm("Are you sure you want to cancel this order?")) return;
 
     try {
         const response = await fetch(`${API_BASE}/api/orders/${activeTrackOrderId}/cancel`, {
@@ -498,78 +509,116 @@ window.submitCancellation = async function() {
             alert("Order cancelled successfully.");
             document.getElementById('displayOrderStatus').innerText = "Cancelled";
             document.getElementById('displayOrderStatus').style.color = "red";
-            
-            // Optional: Dropdown aur button hide kar do taaki dubara click na ho
             document.getElementById('cancelReason').style.display = 'none';
-            event.target.style.display = 'none'; 
-        } else {
-            alert("Cancellation rejected. Database mismatch.");
-        }
-    } catch (e) {
-        alert("Network update failed.");
-    }
+        } else { alert("Cancellation rejected."); }
+    } catch (e) { alert("Network update failed."); }
 };
 
-window.closeTrackModal = function() {
-    trackOrderModal.style.display = 'none';
-};
+window.closeTrackModal = function() { trackOrderModal.style.display = 'none'; };
+
 // ==========================================
-// 🎨 LIVE VISUAL CUSTOMIZER (CANVA MODE - STEP 1)
+// 🎨 CANVA MODE COMPLEMENTARY LAYOUT ENGINE
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'edit') {
-        activateVisualEditor();
-    }
+    if (urlParams.get('mode') === 'edit') activateVisualEditor();
 });
+
 function activateVisualEditor() {
     console.log("🎨 Premium Editor Loaded!");
-
-    // 1. Premium Shopify-Style Floating Panel
     const toolbar = document.createElement('div');
-    toolbar.style.cssText = "position:fixed; top:20px; right:20px; width:320px; background:rgba(18,18,26,0.90); backdrop-filter:blur(15px); color:white; padding:20px; border-radius:12px; z-index:9999; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.1); font-family:sans-serif;";
+    toolbar.style.cssText = "position:fixed; top:20px; right:20px; width:320px; background:rgba(18,18,26,0.95); backdrop-filter:blur(15px); color:white; padding:20px; border-radius:12px; z-index:9999; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.1); font-family:sans-serif;";
     
     toolbar.innerHTML = `
         <h3 style="margin-top:0; border-bottom:1px solid #333; padding-bottom:15px; color:#ff3f6c; font-size:18px; display:flex; justify-content:space-between;">
             <span>🎨 Site Editor</span>
             <span style="font-size:12px; background:#00c853; color:white; padding:3px 8px; border-radius:10px;">Live</span>
         </h3>
-        
         <div style="margin-bottom:15px;">
             <label style="display:block; font-size:13px; margin-bottom:5px; color:#bbb;">Banner Heading</label>
-            <input type="text" id="editBannerText" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#2a2a35; color:white; font-size:14px;" placeholder="Type banner text...">
+            <input type="text" id="editBannerText" style="width:100%; padding:10px; border-radius:6px; border:1px solid #444; background:#2a2a35; color:white; font-size:14px;">
         </div>
-
         <div style="margin-bottom:15px; display:flex; gap:15px;">
             <div style="flex:1;">
                 <label style="display:block; font-size:13px; margin-bottom:5px; color:#bbb;">Text Color</label>
-                <input type="color" id="editTextColor" value="#ffffff" style="width:100%; height:40px; border:none; cursor:pointer; border-radius:6px; background:none;">
+                <input type="color" id="editTextColor" value="#ffffff" style="width:100%; height:40px; border:none; cursor:pointer;">
             </div>
             <div style="flex:1;">
                 <label style="display:block; font-size:13px; margin-bottom:5px; color:#bbb;">BG Color</label>
-                <input type="color" id="editBgColor" value="#ff3f6c" style="width:100%; height:40px; border:none; cursor:pointer; border-radius:6px; background:none;">
+                <input type="color" id="editBgColor" value="#ff3f6c" style="width:100%; height:40px; border:none; cursor:pointer;">
             </div>
         </div>
-
         <div style="margin-bottom:25px;">
             <label style="display:block; font-size:13px; margin-bottom:5px; color:#bbb;">Upload Background Image</label>
-            <input type="file" id="editBgImage" accept="image/*" style="width:100%; font-size:12px; color:#aaa; background:#2a2a35; padding:8px; border-radius:6px; border:1px solid #444;">
+            <input type="file" id="editBgImage" accept="image/*" style="width:100%; font-size:12px; color:#aaa; background:#2a2a35; padding:8px; border-radius:6px;">
         </div>
-
-        <button id="saveDesignBtn" style="width:100%; background:linear-gradient(45deg, #00c853, #009624); color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:12px; font-size:15px; transition:0.3s;">💾 Save Changes</button>
-        <button onclick="window.location.href='index.html'" style="width:100%; background:#444; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px; transition:0.3s;">🚪 Exit Editor</button>
+        <button id="saveDesignBtn" style="width:100%; background:linear-gradient(45deg, #00c853, #009624); color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:15px;">💾 Save Changes</button>
     `;
     document.body.appendChild(toolbar);
 
-    // ==========================================
-// 🚀 PREMIUM TOAST NOTIFICATION OVERRIDE
-// ==========================================
+    const heroSection = document.querySelector('.hero-banner');
+    const heroText = document.querySelector('.hero-banner h1');
+    const textInput = document.getElementById('editBannerText');
+    const textColorInput = document.getElementById('editTextColor');
+    const bgColorInput = document.getElementById('editBgColor');
+    const bgImageInput = document.getElementById('editBgImage');
+
+    if (heroText && heroSection) {
+        textInput.value = heroText.innerText;
+        heroSection.style.border = "3px dashed #ff3f6c";
+        
+        textInput.addEventListener('input', (e) => heroText.innerText = e.target.value);
+        textColorInput.addEventListener('input', (e) => heroText.style.color = e.target.value);
+        bgColorInput.addEventListener('input', (e) => {
+            heroSection.style.backgroundImage = "none";
+            heroSection.style.backgroundColor = e.target.value;
+        });
+    }
+
+    let currentBase64Image = null;
+    if (bgImageInput) {
+        bgImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentBase64Image = event.target.result; 
+                    if (heroSection) heroSection.style.background = `url('${currentBase64Image}') center/cover no-repeat`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    document.getElementById('saveDesignBtn').addEventListener('click', async () => {
+        const saveBtn = document.getElementById('saveDesignBtn');
+        saveBtn.innerText = "Saving Design... ⏳"; saveBtn.disabled = true;
+
+        const payload = { heading: textInput.value, textColor: textColorInput.value, bgColor: bgColorInput.value };
+        if (currentBase64Image) payload.image = currentBase64Image;
+
+        try {
+            const response = await fetch(`${API_BASE}/api/banner`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                window.showPremiumToast("✅ Saved Successfully!");
+                saveBtn.innerText = "💾 Save Changes";
+            }
+        } catch (err) { console.error(err); }
+        finally { saveBtn.disabled = false; }
+    });
+}
+
+// PREMIUM TOAST SYSTEM OVERRIDE
 window.showPremiumToast = function(message) {
     let toast = document.getElementById('premiumToast');
     if (!toast) {
         toast = document.createElement('div');
         toast.id = 'premiumToast';
-        toast.style.cssText = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#282c3f; color:#fff; padding:12px 25px; border-radius:30px; font-weight:600; font-size:14px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:999999; letter-spacing:0.5px; display:none;";
+        toast.style.cssText = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#282c3f; color:#fff; padding:12px 25px; border-radius:30px; font-weight:600; font-size:14px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:999999; display:none;";
         document.body.appendChild(toast);
     }
     toast.innerText = message;
@@ -577,107 +626,4 @@ window.showPremiumToast = function(message) {
     setTimeout(() => { toast.style.display = 'none'; }, 2500);
 };
 
-// Window Alert ko custom premium alert se force replace karo
-window.alert = function(msg) {
-    if (msg.includes("Login Successful") || msg.includes("added to your bag") || msg.includes("Saved Successfully")) {
-        window.showPremiumToast(msg);
-    } else {
-        // Standard normal popup rules critical warning ke liye safe rakho
-        window.showPremiumToast(msg);
-    }
-};
-
-    // 2. Select Elements to Edit
-    const heroSection = document.querySelector('.hero-banner');
-    const heroText = document.querySelector('.hero-banner h1');
-    
-    // 3. Connect Panel Controls to Live UI
-    const textInput = document.getElementById('editBannerText');
-    const textColorInput = document.getElementById('editTextColor');
-    const bgColorInput = document.getElementById('editBgColor');
-    const bgImageInput = document.getElementById('editBgImage');
-
-    if (heroText && heroSection) {
-        // Pre-fill text box
-        textInput.value = heroText.innerText;
-
-        // Visual Indicator that area is editable
-        heroSection.style.border = "3px dashed rgba(255, 63, 108, 0.5)";
-        heroSection.style.boxSizing = "border-box";
-
-        // Live Event Listeners (Magic Happens Here)
-        textInput.addEventListener('input', (e) => heroText.innerText = e.target.value);
-        textColorInput.addEventListener('input', (e) => heroText.style.color = e.target.value);
-        bgColorInput.addEventListener('input', (e) => {
-            heroSection.style.backgroundImage = "none"; // Clear image if color is selected
-            heroSection.style.backgroundColor = e.target.value;
-        });
-        
-        bgImageInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    heroSection.style.background = `url('${event.target.result}') center/cover no-repeat`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-   // 4. THE REAL SAVE LOGIC (FIXED DUP ACCELERATOR)
-   let currentBase64Image = null;
-   
-   if (bgImageInput) {
-       bgImageInput.addEventListener('change', (e) => {
-           const file = e.target.files[0];
-           if(file) {
-               const reader = new FileReader();
-               reader.onload = (event) => {
-                   currentBase64Image = event.target.result; 
-                   if (heroSection) heroSection.style.background = `url('${currentBase64Image}') center/cover no-repeat`;
-               };
-               reader.readAsDataURL(file);
-           }
-       });
-   }
-
-   document.getElementById('saveDesignBtn').addEventListener('click', async () => {
-       const saveBtn = document.getElementById('saveDesignBtn');
-       saveBtn.innerText = "Saving Design... ⏳";
-       saveBtn.disabled = true;
-
-       const payload = {
-           heading: textInput.value,
-           textColor: textColorInput.value,
-           bgColor: bgColorInput.value
-       };
-
-       if (currentBase64Image) {
-           payload.image = currentBase64Image;
-       }
-
-       try {
-           const response = await fetch(`${API_BASE}/api/banner`, {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify(payload)
-           });
-
-           if (response.ok) {
-               saveBtn.style.background = "#000000";
-               window.showPremiumToast("✅ Saved Successfully!");
-               setTimeout(() => {
-                   saveBtn.style.background = "linear-gradient(45deg, #00c853, #009624)";
-                   saveBtn.innerText = "💾 Save Changes";
-               }, 2000);
-           } else {
-               window.showPremiumToast("❌ Save failed. Backend error.");
-           }
-       } catch (err) {
-           console.error("Save Error:", err);
-       } finally {
-           saveBtn.disabled = false;
-       }
-   });
-}
+window.alert = function(msg) { window.showPremiumToast(msg); };
